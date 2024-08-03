@@ -1,7 +1,4 @@
 import openpyxl
-from openpyxl.utils import get_column_letter
-from openpyxl.styles import Font
-from datetime import datetime
 from copy import copy
 
 def copy_cell_styles(source_cell, target_cell):
@@ -13,6 +10,14 @@ def copy_cell_styles(source_cell, target_cell):
         target_cell.protection = copy(source_cell.protection)
         target_cell.alignment = copy(source_cell.alignment)
 
+
+def get_rows_of_name(sheet, search_value):
+    matching_rows = []
+    for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row, min_col=1, max_col=sheet.max_column):
+        if row[0].value == search_value:
+            matching_rows.append([cell.value for cell in row])
+    
+    return matching_rows
 
 def step_0():
     wbOrg = openpyxl.load_workbook("./example_los/Example0_LOS Original.xlsx")
@@ -78,12 +83,30 @@ def step_0():
         wsOut.cell(1, c).value = wsOrg.cell(1, c).value
         copy_cell_styles(wsOrg.cell(1, c), wsOut.cell(1, c))
         
-    
+    row = 2
     for name in names:
+        name_rows = get_rows_of_name(wsOrg, name)
         for category_heading in ALL_RECORDS.keys():
-            pass
+            wsOut.cell(row, 1).value, wsOut.cell(row, 2).value = name, category_heading
+            row += 1
             for category in ALL_RECORDS[category_heading]:
-                pass
+                wsOut.cell(row, 1).value, wsOut.cell(row, 2).value = name, category
+                
+                found = False
+                for _row in name_rows:
+                    if _row[1] == category:
+                        found = True
+                        for c in range(3, wsOrg.max_column + 1):
+                            wsOut.cell(row, c).value = _row[c - 1]
+                            wsOut.cell(row, c).number_format = '#,##0.00'
+                        break
+
+                if not found:
+                    for c in range(3, wsOrg.max_column + 1):
+                        wsOut.cell(row, c).value = 0.00
+                        wsOut.cell(row, c).number_format = '#,##0.00'
+                row += 1
+
     wbOut.save("./bot_outputs/step_0_out.xlsx")
 
 
