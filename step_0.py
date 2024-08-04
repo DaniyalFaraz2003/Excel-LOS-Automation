@@ -21,7 +21,7 @@ def get_rows_of_name(sheet, search_value):
 
 def step_0():
     wbOrg = openpyxl.load_workbook("./example_los/Example0_LOS Original.xlsx")
-    wbOut = openpyxl.load_workbook("./bot_outputs/step_0.xlsx")
+    wbOut = openpyxl.load_workbook("./bot_outputs/step_0_in.xlsx")
     wsOut = wbOut.active
     wsOrg = wbOrg.active  # active worksheet
     # extract all names from first column to find total number of records
@@ -31,13 +31,13 @@ def step_0():
     number_of_records = len(names)
 
     ALL_RECORDS = {
-        "Volumes": [
+        "Volumes:": [
             "Oil Sales - Bbls",
             "Gas Sales - mcf",
             "NGL Sales - Bbls",
             "NGL Sales - Gal"
         ],
-        "Revenue": [
+        "Revenue:": [
             "Oil Sales Rev",
             "Gas Sales Rev",
             "NGL Sales Rev",
@@ -45,7 +45,7 @@ def step_0():
             "Gas Rev Deduct",
             "NGL Rev Deduct"
         ],
-        "Operating Expenses": [
+        "Operating Expenses:": [
             "Severance Taxes",
             "Other Deductions",
             "Chemicals",
@@ -106,6 +106,15 @@ def step_0():
                         wsOut.cell(row, c).value = 0.00
                         wsOut.cell(row, c).number_format = '#,##0.00'
                 row += 1
+
+    # adding filters
+    filter_file = openpyxl.load_workbook("./bot_outputs/step_0_filters.xlsx")
+    filter_sheet = filter_file.active
+    filter_range = filter_sheet.auto_filter.ref
+    wsOut.auto_filter.ref = filter_range
+
+    # fix the top row
+    wsOut.freeze_panes = 'A2'
 
     wbOut.save("./bot_outputs/step_0_out.xlsx")
 
