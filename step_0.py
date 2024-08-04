@@ -99,12 +99,14 @@ def step_0():
                         for c in range(3, wsOrg.max_column + 1):
                             wsOut.cell(row, c).value = _row[c - 1]
                             wsOut.cell(row, c).number_format = '#,##0.00'
+                            # wsOut.cell(row, c).number_format = '0.00'
                         break
 
                 if not found:
                     for c in range(3, wsOrg.max_column + 1):
                         wsOut.cell(row, c).value = 0.00
                         wsOut.cell(row, c).number_format = '#,##0.00'
+                        # wsOut.cell(row, c).number_format = '0.00'
                 row += 1
 
     # adding filters

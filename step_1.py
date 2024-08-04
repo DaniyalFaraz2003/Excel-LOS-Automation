@@ -40,7 +40,7 @@ def step_1():
     # now to populate the phdwin ids
     for i in range(2, wsIn.max_row + 1):
         # formula
-        wsIn.cell(row=i, column=1).value = '=VLOOKUP($B' + str(i) + ',Example0gross_NameIDRecon!$B:$C,2,0)'
+        wsIn.cell(row=i, column=1).value = f'=VLOOKUP($B{str(i)},Example0gross_NameIDRecon!$B:$C,2,0)'
 
     wbIn.save("./bot_outputs/step_1_out.xlsx")
 

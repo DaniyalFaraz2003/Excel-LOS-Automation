@@ -7,7 +7,7 @@ def add_los_designation_tab(wbIn):
     if "Example0gross_LOSDesignation" not in wbIn.worksheets:
         # only create the sheet if it is not present
         wbIn.create_sheet("Example0gross_LOSDesignation")
-    ws_los_designation = wbIn.worksheets[2] # the sheet that will contain ID's
+    ws_los_designation = wbIn.worksheets[2] # the sheet that will contain Designations
     # clear the sheet if it is not newly created before copying contents
     for row in ws_los_designation.iter_rows():
         for cell in row:
@@ -56,7 +56,7 @@ def step_2():
     # to populate Designations
     for i in range(2, wsIn.max_row + 1):
         # formula
-        wsIn.cell(row=i, column=4).value = '=IF(VLOOKUP($C' + str(i) + ',Example0gross_LOSDesignation!$A:$B,2,0)=0,"",VLOOKUP($C' + str(i) + ',Example0gross_LOSDesignation!$A:$B,2,0))'
+        wsIn.cell(row=i, column=4).value = f'=IF(VLOOKUP($C{str(i)},Example0gross_LOSDesignation!$A:$B,2,0)=0,"",VLOOKUP($C{str(i)},Example0gross_LOSDesignation!$A:$B,2,0))'
 
     wbIn.save("./bot_outputs/step_2_out.xlsx")
 
