@@ -18,6 +18,12 @@ def add_ID_tab(wbIn):
     for row in ws_phdwin_id_source.iter_rows(values_only=True):
         ws_phdwin_id.append(row)
 
+    # fix top row for id tab
+    ws_phdwin_id.freeze_panes = 'A2'
+
+    # bold the headings
+    ws_phdwin_id['A1'].font = ws_phdwin_id['B1'].font = ws_phdwin_id['C1'].font = Font(bold=True)
+
     wb_phdwin_id_source.close() # close the source workbook as it is no longer needed
 
 
@@ -26,7 +32,6 @@ def step_1():
     add_ID_tab(wbIn)
     
     wsIn = wbIn.worksheets[0] # the main sheet on which the process will be done
-    ws_phdwin_id = wbIn.worksheets[1] # the sheet that will contain ID's
 
     wsIn.insert_cols(1)
     wsIn['A1'].value = 'PHDWIN Id'
