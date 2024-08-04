@@ -116,6 +116,9 @@ def step_0():
     # fix the top row
     wsOut.freeze_panes = 'A2'
 
+    # rename sheet name
+    wsOut.title = 'Example0gross_LOS'
+
     wbOut.save("./bot_outputs/step_0_out.xlsx")
 
 
