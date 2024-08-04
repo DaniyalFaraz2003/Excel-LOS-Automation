@@ -1,5 +1,7 @@
 import openpyxl
 from openpyxl.styles import Font
+from openpyxl.styles import PatternFill
+from openpyxl.formatting.rule import FormulaRule
 
 def add_los_designation_tab(wbIn):
     if "Example0gross_LOSDesignation" not in wbIn.worksheets:
@@ -30,6 +32,12 @@ def add_los_designation_tab(wbIn):
     for row in ws_los_designation['E2':'E5']:
         for cell in row:
             cell.number_format = '0%'
+
+    # conditional formatting for sum
+    white_font = Font(color='FFFFFF', bold=True) # color to be bold and white when red
+    redFill = PatternFill(start_color='EE1111', end_color='EE1111', fill_type='solid')
+    formula_rule = FormulaRule(formula=['=OR(AND(SUM(E2:E4)<>1, SUM(E2:E4)>0))'], stopIfTrue=False, fill=redFill, font=white_font)
+    ws_los_designation.conditional_formatting.add('E5', formula_rule)
 
     wb_los_designation_source.close() # close the source workbook as it is no longer needed
 
