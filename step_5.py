@@ -1,6 +1,8 @@
 import openpyxl
 from openpyxl.styles import Font, numbers
 from openpyxl.utils import get_column_letter
+from openpyxl.utils import column_index_from_string
+from datetime import datetime
 from step_0 import copy_cell_styles
 
 def add_btu_tab(wbIn):
@@ -61,6 +63,31 @@ def add_historical_prod_tab(wbIn):
     # bold the headings
     ws_historical_prod['A1'].font = ws_historical_prod['B1'].font = ws_historical_prod['C1'].font = Font(bold=True)
     ws_historical_prod['D1'].font = ws_historical_prod['E1'].font = ws_historical_prod['F1'].font = ws_historical_prod['G1'].font = Font(bold=True)
+
+    # fix date format
+    date_column = 'C'
+    date_column_index = column_index_from_string(date_column)
+
+    for row in ws_historical_prod.iter_rows(min_col=date_column_index, max_col=date_column_index, min_row=2, max_row=ws_historical_prod.max_row):
+        for cell in row:
+            # Read the current cell value
+            if isinstance(cell.value, str):
+                try:
+                    # Parse the date string and convert to the desired format
+                    date = datetime.strptime(cell.value, '%b-%y')
+                    # Set the cell value to the new date format (1st day of the month)
+                    cell.value = datetime(date.year, date.month, 1)
+                    # Apply the desired number format to the cell
+                    cell.number_format = 'mmm-yy'
+                except ValueError:
+                    print(f"Skipping cell {cell.coordinate} with value {cell.value}, as it is not a valid date.")
+
+    # add composite key to replace xlookup
+    ws_historical_prod.insert_cols(1)
+    ws_historical_prod['A1'].value = 'Composite Key'
+    ws_historical_prod['A1'].font = Font(bold=True)
+    for i in range(2, ws_historical_prod.max_row + 1):
+        ws_historical_prod.cell(i, 1).value = f'=+C{i}&"-"&D{i}'
 
     wb_historical_prod_source.close()  # close the source workbook as it is no longer needed
 
@@ -200,26 +227,26 @@ def populate_fourth_part(wsIn):
     while i <= wsIn.max_row:
         for j in range(5, 17):
             letter = get_column_letter(j)
-            wsIn.cell(i, j).value = f'=XLOOKUP($A{i}&"|"&{letter}$4,Example0gross_HistoricalProd!$B:$B&"|"&Example0gross_HistoricalProd!$C:$C,Example0gross_HistoricalProd!$D:$D,"",0,1)'
-            wsIn.cell(i, j).number_format = '0.00'
+            wsIn.cell(i, j).value = f'=+VLOOKUP($A{i}&"-"&{letter}$4,Example0gross_HistoricalProd!$A:$E,5,FALSE)'
+            wsIn.cell(i, j).number_format = '#,###'
         i += 85
 
-    # i = 67
-    # while i <= wsIn.max_row:
-    #     min = i - 62
-    #     max = i - 19
-    #     value = i - 1
-    #     for j in range(5, 17):
-    #         letter = get_column_letter(j)
-    #         wsIn.cell(i, j).value = f'=IFERROR(SUMIF($D{min}:$D{max},"Gas Sales Volumes (mcf)",{letter}{min}:{letter}{max})/{letter}{value},"")'
-    #         wsIn.cell(i, j).number_format = '0.00%'
-    #     num = 14
-    #     for j in range(17, 21):  # averages
-    #         letter = get_column_letter(num)
-    #         wsIn.cell(i, j).value = f'=IFERROR(AVERAGE({letter}{i}:P{i}),"")'
-    #         wsIn.cell(i, j).number_format = '0.00%'
-    #         num -= 3
-    #     i += 85
+    i = 67
+    while i <= wsIn.max_row:
+        min = i - 62
+        max = i - 19
+        value = i - 1
+        for j in range(5, 17):
+            letter = get_column_letter(j)
+            wsIn.cell(i, j).value = f'=IFERROR(SUMIF($D{min}:$D{max},"Gas Sales Volumes (mcf)",{letter}{min}:{letter}{max})/{letter}{value},"")'
+            wsIn.cell(i, j).number_format = '0.00%'
+        num = 14
+        for j in range(17, 21):  # averages
+            letter = get_column_letter(num)
+            wsIn.cell(i, j).value = f'=IFERROR(AVERAGE({letter}{i}:P{i}),"")'
+            wsIn.cell(i, j).number_format = '0.00%'
+            num -= 3
+        i += 85
 
 def populate_fifth_part(wsIn):
     pass
@@ -245,7 +272,7 @@ def step_5():
     add_historical_prod_tab(wbIn)
 
     wsIn = wbIn.worksheets[0] # active LOS worksheet
-
+    
     # populate values
     populate_btu(wsIn)
     populate_first_part(wsIn)
