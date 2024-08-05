@@ -28,8 +28,6 @@ def step_0():
     first_column = [cell.value for cell in wsOrg['A'][1:]]
     names = list({k: None for k in first_column}.keys())
 
-    number_of_records = len(names)
-
     ALL_RECORDS = {
         "Volumes:": [
             "Oil Sales - Bbls",

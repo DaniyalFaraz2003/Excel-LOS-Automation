@@ -21,8 +21,8 @@ def add_pricing_inputs_tab(wbIn):
         ws_pricing_input.append(row)
     
     # correct formatting
-    for i in range(1, ws_pricing_input.max_row):
-        for j in range(1, ws_pricing_input.max_column):
+    for i in range(1, ws_pricing_input.max_row + 1):
+        for j in range(1, ws_pricing_input.max_column + 1):
             copy_cell_styles(ws_pricing_input_source.cell(i, j), ws_pricing_input.cell(i, j))
 
     # fix top row for pricing inputs tab
