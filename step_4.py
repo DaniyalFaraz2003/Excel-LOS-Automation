@@ -41,13 +41,6 @@ def fix_vlookups(wsIn):
             count = 0
             i += 41
 
-def get_number_of_records():
-    wb_step_0 = openpyxl.load_workbook("./bot_outputs/step_0_out.xlsx")
-    ws_step_0 = wb_step_0.worksheets[0]
-    first_column = [cell.value for cell in ws_step_0['A'][1:]]
-    names = list({k: None for k in first_column}.keys())
-    return len(names)
-
 def step_4():
     wbIn = openpyxl.load_workbook("./bot_outputs/step_3_out.xlsx")
     
