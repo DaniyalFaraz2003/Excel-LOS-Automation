@@ -2,9 +2,9 @@ import openpyxl
 from openpyxl.styles import Font
 
 def add_ID_tab(wbIn):
-    if "Example0gross_NameIDRecon" not in wbIn.worksheets:
+    if "NameIDRecon" not in wbIn.worksheets:
         # only create the sheet if it is not present
-        wbIn.create_sheet("Example0gross_NameIDRecon")
+        wbIn.create_sheet("NameIDRecon")
     ws_phdwin_id = wbIn.worksheets[1] # the sheet that will contain ID's
     # clear the sheet if it is not newly created before copying contents
     for row in ws_phdwin_id.iter_rows():
@@ -12,7 +12,7 @@ def add_ID_tab(wbIn):
             cell.value = None
 
     # to copy the contents into the main workbook tab, open the source from open refine outputs
-    wb_phdwin_id_source = openpyxl.load_workbook("./example_los/OpenRefine Outputs/Example0gross_NameIDReconciliation.xlsx")
+    wb_phdwin_id_source = openpyxl.load_workbook("./OpenRefine Outputs/NameIDReconciliation.xlsx")
     ws_phdwin_id_source = wb_phdwin_id_source.active # source from which to be copied
 
     for row in ws_phdwin_id_source.iter_rows(values_only=True):
@@ -40,7 +40,7 @@ def step_1():
     # now to populate the phdwin ids
     for i in range(2, wsIn.max_row + 1):
         # formula
-        wsIn.cell(row=i, column=1).value = f'=VLOOKUP($B{str(i)},Example0gross_NameIDRecon!$B:$C,2,0)'
+        wsIn.cell(row=i, column=1).value = f'=VLOOKUP($B{str(i)},NameIDRecon!$B:$C,2,0)'
 
     wbIn.save("./bot_outputs/step_1_out.xlsx")
 

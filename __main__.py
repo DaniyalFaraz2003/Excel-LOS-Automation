@@ -6,7 +6,6 @@ from step_4 import step_4
 from step_5 import step_5
 from step_6 import step_6
 
-
 def main():
     step_0()
     step_1()
@@ -19,3 +18,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print('done')

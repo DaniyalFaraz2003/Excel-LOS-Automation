@@ -4,9 +4,9 @@ from openpyxl.styles import PatternFill
 from openpyxl.formatting.rule import FormulaRule
 
 def add_los_designation_tab(wbIn):
-    if "Example0gross_LOSDesignation" not in wbIn.worksheets:
+    if "LOS_Designation" not in wbIn.worksheets:
         # only create the sheet if it is not present
-        wbIn.create_sheet("Example0gross_LOSDesignation")
+        wbIn.create_sheet("LOS_Designation")
     ws_los_designation = wbIn.worksheets[2] # the sheet that will contain Designations
     # clear the sheet if it is not newly created before copying contents
     for row in ws_los_designation.iter_rows():
@@ -14,7 +14,7 @@ def add_los_designation_tab(wbIn):
             cell.value = None
 
     # to copy the contents into the main workbook tab, open the source from open refine outputs
-    wb_los_designation_source = openpyxl.load_workbook("./example_los/OpenRefine Outputs/Example0gross_LOSDesignation.xlsx")
+    wb_los_designation_source = openpyxl.load_workbook("./OpenRefine Outputs/LOS Designation.xlsx")
     ws_los_designation_source = wb_los_designation_source.active # source from which to be copied
 
     for row in ws_los_designation_source.iter_rows(values_only=True):
@@ -52,11 +52,11 @@ def step_2():
     wsIn['D1'].value = 'LOS Designation'
     wsIn['D1'].font = Font(bold=True)
 
-    # =IF(VLOOKUP($C2,Example0gross_LOSDesignation!$A:$B,2,0)=0,"",VLOOKUP($C2,Example0gross_LOSDesignation!$A:$B,2,0))
+    # =IF(VLOOKUP($C2,LOS Designation!$A:$B,2,0)=0,"",VLOOKUP($C2,LOS Designation!$A:$B,2,0))
     # to populate Designations
     for i in range(2, wsIn.max_row + 1):
         # formula
-        wsIn.cell(row=i, column=4).value = f'=IF(VLOOKUP($C{str(i)},Example0gross_LOSDesignation!$A:$B,2,0)=0,"",VLOOKUP($C{str(i)},Example0gross_LOSDesignation!$A:$B,2,0))'
+        wsIn.cell(row=i, column=4).value = f'=IF(VLOOKUP($C{str(i)},LOS_Designation!$A:$B,2,0)=0,"",VLOOKUP($C{str(i)},LOS_Designation!$A:$B,2,0))'
 
     wbIn.save("./bot_outputs/step_2_out.xlsx")
 

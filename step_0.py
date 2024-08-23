@@ -1,4 +1,5 @@
 import openpyxl
+from openpyxl import Workbook
 from copy import copy
 
 def copy_cell_styles(source_cell, target_cell):
@@ -19,64 +20,52 @@ def get_rows_of_name(sheet, search_value):
     
     return matching_rows
 
+def store_number_line_items(ALL_LINE_ITEMS):
+    number_line_items = len(ALL_LINE_ITEMS) + sum(len(v) for v in ALL_LINE_ITEMS.values())
+    wb_number_line_items = Workbook()
+    ws_number_line_items = wb_number_line_items.active
+    ws_number_line_items['A1'].value = number_line_items
+    wb_number_line_items.save('./bot_outputs/number_line_items.xlsx')
+    wb_number_line_items.close()
+
+def get_number_line_items():
+    wb = openpyxl.load_workbook('./bot_outputs/number_line_items.xlsx')
+    ws = wb.active
+    number_line_items = ws['A1'].value
+    wb.close()
+    return number_line_items
+
+def get_all_line_items():
+    ALL_LINE_ITEMS = {}
+    wb = openpyxl.load_workbook('./OpenRefine Outputs/LOS Designation.xlsx')
+    ws = wb.active
+    i = 2
+    while i <= ws.max_row:
+        if ws.cell(i, 1).value[-1] == ':' and ws.cell(i, 2).value == None:
+            category = ws.cell(i, 1).value
+            ALL_LINE_ITEMS[category] = []
+            i += 1
+            while ws.cell(i, 1).value[-1] != ':':
+                ALL_LINE_ITEMS[category].append(ws.cell(i, 1).value)
+                i += 1
+                if i > ws.max_row:
+                    break
+    return ALL_LINE_ITEMS
+
 def step_0():
-    wbOrg = openpyxl.load_workbook("./example_los/Example0_LOS Original.xlsx")
-    wbOut = openpyxl.load_workbook("./bot_outputs/step_0_in.xlsx")
+    wbOrg = openpyxl.load_workbook("./OpenRefine Outputs/LOS.xlsx")
+    wbOut = Workbook()
     wsOut = wbOut.active
     wsOrg = wbOrg.active  # active worksheet
     # extract all names from first column to find total number of records
     first_column = [cell.value for cell in wsOrg['A'][1:]]
     names = list({k: None for k in first_column}.keys())
 
-    ALL_RECORDS = {
-        "Volumes:": [
-            "Oil Sales - Bbls",
-            "Gas Sales - mcf",
-            "NGL Sales - Bbls",
-            "NGL Sales - Gal"
-        ],
-        "Revenue:": [
-            "Oil Sales Rev",
-            "Gas Sales Rev",
-            "NGL Sales Rev",
-            "Oil Rev Deduct",
-            "Gas Rev Deduct",
-            "NGL Rev Deduct"
-        ],
-        "Operating Expenses:": [
-            "Severance Taxes",
-            "Other Deductions",
-            "Chemicals",
-            "Communications",
-            "Consulting",
-            "Contract Labor",
-            "Fuel & Power",
-            "Hot Oil & Other Treatments",
-            "Insurance",
-            "Legal",
-            "Marketing",
-            "Measurement/Metering",
-            "Miscellaneous",
-            "Overhead",
-            "Professional Services",
-            "Pumping & Gauging",
-            "Rental Equipment",
-            "Repairs & Maintenance",
-            "Road & Lease Maintenance",
-            "Salt Water Disposal",
-            "Supervision",
-            "Supplies",
-            "Ad Valorem",
-            "Trucking & Hauling",
-            "Vacuum Truck/Clean Up",
-            "Well Servicing",
-            "Workover Rig",
-            "Gathering & Transport Chg",
-            "Swd Disposal Chg",
-            "Total Expenses",
-            "Net Operating Profit"
-        ]
-    }
+    ALL_LINE_ITEMS = get_all_line_items()
+
+    # calculate number of records and store it in a file
+    store_number_line_items(ALL_LINE_ITEMS)
+    
     for c in range(1, wsOrg.max_column + 1):
         wsOut.cell(1, c).value = wsOrg.cell(1, c).value
         copy_cell_styles(wsOrg.cell(1, c), wsOut.cell(1, c))
@@ -84,10 +73,10 @@ def step_0():
     row = 2
     for name in names:
         name_rows = get_rows_of_name(wsOrg, name)
-        for category_heading in ALL_RECORDS.keys():
+        for category_heading in ALL_LINE_ITEMS.keys():
             wsOut.cell(row, 1).value, wsOut.cell(row, 2).value = name, category_heading
             row += 1
-            for category in ALL_RECORDS[category_heading]:
+            for category in ALL_LINE_ITEMS[category_heading]:
                 wsOut.cell(row, 1).value, wsOut.cell(row, 2).value = name, category
                 
                 found = False
@@ -105,17 +94,12 @@ def step_0():
                         wsOut.cell(row, c).number_format = '#,##0.00_);[Red](#,##0.00)'
                 row += 1
 
-    # adding filters
-    filter_file = openpyxl.load_workbook("./bot_outputs/step_0_filters.xlsx")
-    filter_sheet = filter_file.active
-    filter_range = filter_sheet.auto_filter.ref
-    wsOut.auto_filter.ref = filter_range
 
     # fix the top row
     wsOut.freeze_panes = 'A2'
 
     # rename sheet name
-    wsOut.title = 'Example0gross_LOS'
+    wsOut.title = 'LOS'
 
     wbOut.save("./bot_outputs/step_0_out.xlsx")
 

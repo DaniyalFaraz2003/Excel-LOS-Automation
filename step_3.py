@@ -4,9 +4,9 @@ from step_0 import copy_cell_styles
 from openpyxl.utils import get_column_letter
 
 def add_pricing_inputs_tab(wbIn):
-    if "Historical_NYMEX_Pricing_Input" not in wbIn.worksheets:
+    if "Historical_NYMEX_Input" not in wbIn.worksheets:
         # only create the sheet if it is not present
-        wbIn.create_sheet("Historical_NYMEX_Pricing_Input")
+        wbIn.create_sheet("Historical_NYMEX_Input")
     ws_pricing_input = wbIn.worksheets[3] # the sheet that will contain Pricing Inputs
     # clear the sheet if it is not newly created before copying contents
     for row in ws_pricing_input.iter_rows():
@@ -14,7 +14,7 @@ def add_pricing_inputs_tab(wbIn):
             cell.value = None
 
     # to copy the contents into the main workbook tab, open the source from open refine outputs
-    wb_pricing_input_source = openpyxl.load_workbook("./example_los/OpenRefine Outputs/Historical NYMEX Pricing Input.xlsx")
+    wb_pricing_input_source = openpyxl.load_workbook("./OpenRefine Outputs/Historical NYMEX Input.xlsx")
     ws_pricing_input_source = wb_pricing_input_source.active # source from which to be copied
 
     for row in ws_pricing_input_source.iter_rows(values_only=True):
@@ -51,10 +51,10 @@ def step_3():
 
     # nymex oil and gas values
     for i in range(5, wsIn.max_column + 1):
-        wsIn.cell(1, i).value = f'=VLOOKUP({get_column_letter(i)}$4,Historical_NYMEX_Pricing_Input!$A:$C,2,0)'
+        wsIn.cell(1, i).value = f'=VLOOKUP({get_column_letter(i)}$4,Historical_NYMEX_Input!$A:$C,2,0)'
         wsIn.cell(1, i).number_format = '0.00'
     for i in range(5, wsIn.max_column + 1):
-        wsIn.cell(2, i).value = f'=VLOOKUP({get_column_letter(i)}$4,Historical_NYMEX_Pricing_Input!$A:$C,3,0)'
+        wsIn.cell(2, i).value = f'=VLOOKUP({get_column_letter(i)}$4,Historical_NYMEX_Input!$A:$C,3,0)'
         wsIn.cell(2, i).number_format = '0.00'
 
 

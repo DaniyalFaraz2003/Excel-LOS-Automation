@@ -1,40 +1,16 @@
 import openpyxl
 from openpyxl.styles import Font
-from openpyxl.utils import get_column_letter
-import xlwings as xw
-
-def adjust_column_widths(wsIn):
-    app = xw.App(visible=False)
-    wb_xlwings = app.books.open('./bot_outputs/step_4_out.xlsx')
-
-    # wb_openpyxl = openpyxl.load_workbook('./bot_outputs/step_4_out.xlsx')
-    # ws_openpyxl = wb_openpyxl.active
-
-    sheet_xlwings = wb_xlwings.sheets[0]
-
-    # Adjust column widths based on displayed values
-    for col in wsIn.iter_cols(min_row=1, max_row=wsIn.max_row, min_col=1, max_col=wsIn.max_column):
-        max_length = 0
-        col_letter = col[0].column_letter
-        for cell in col:
-            value = sheet_xlwings.range((cell.row, cell.column)).value
-            if value is not None and len(str(value)) > max_length:
-                max_length = len(str(value))
-        # adjusted_width = (max_length + 2) * 1.2  # Adjust the multiplier as needed
-        wsIn.column_dimensions[col_letter].width = max_length
-
-    # Save and close the workbooks
-    # wb_openpyxl.save('./bot_outputs/step_4_out.xlsx')
-    wb_xlwings.close()
-    app.quit()
+from step_0 import get_number_line_items
 
 def fix_vlookups(wsIn):
+    number_line_items = get_number_line_items()
+
     count = 0
     i = 5
     while i <= wsIn.max_row:
-        if count < 44:
-            wsIn.cell(i, 1).value = f'=VLOOKUP($B{i},Example0gross_NameIDRecon!$B:$C,2,0)'
-            wsIn.cell(i, 4).value = f'=IF(VLOOKUP($C{i},Example0gross_LOSDesignation!$A:$B,2,0)=0,"",VLOOKUP($C{i},Example0gross_LOSDesignation!$A:$B,2,0))'
+        if count < number_line_items:
+            wsIn.cell(i, 1).value = f'=VLOOKUP($B{i},NameIDRecon!$B:$C,2,0)'
+            wsIn.cell(i, 4).value = f'=IF(VLOOKUP($C{i},LOS_Designation!$A:$B,2,0)=0,"",VLOOKUP($C{i},LOS_Designation!$A:$B,2,0))'
             count += 1
             i += 1
         else:
@@ -97,9 +73,10 @@ def step_4():
     # 41 is the number of rows which will now be inserted below every record
     # inserting blank rows first, then populate them
     inserting_rows = 41
-    count = 44
+    number_line_items = get_number_line_items()
+    count = number_line_items
     for i in range(wsIn.max_row, 4, -1):
-        if count == 44:
+        if count == number_line_items:
             count = 1
             wsIn.insert_rows(i + 1, inserting_rows)
             # we will populate the rows at the time of insertion

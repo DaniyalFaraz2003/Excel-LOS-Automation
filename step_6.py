@@ -2,6 +2,7 @@ import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill
 from openpyxl.styles.borders import Border, Side
 from openpyxl.utils import get_column_letter, column_index_from_string
+from step_0 import get_number_line_items
 
 def add_economic_param_tab(wbIn):
     if "Economic Parameters" not in wbIn.worksheets:
@@ -14,7 +15,7 @@ def add_economic_param_tab(wbIn):
             cell.value = None
 
 def get_names_ids():
-    wb_names_ids = openpyxl.load_workbook("./example_los/OpenRefine Outputs/Example0gross_NameIDReconciliation.xlsx")
+    wb_names_ids = openpyxl.load_workbook("./OpenRefine Outputs/NameIDReconciliation.xlsx")
     ws_names_ids = wb_names_ids.active
     names = [cell.value for cell in ws_names_ids['B'][1:]]
     ids = [cell.value for cell in ws_names_ids['C'][1:]]
@@ -78,15 +79,16 @@ def fill_names_ids(wsIn):
         wsIn.append([id, name])
 
 def fill_gray_color(wsIn):
+    number_line_items = get_number_line_items()
     gray_fill = PatternFill(start_color="D9D9D9", end_color="D9D9D9", fill_type="solid")
 
-    i = 50
+    i = 4 + number_line_items + 2
     while i <= wsIn.max_row:
         fill_range = wsIn[f'D{i}':f'T{i + 39}']
         for row in fill_range:
             for cell in row:
                 cell.fill = gray_fill
-        i += 85
+        i += number_line_items + 41
 
 def step_6():
     wbIn = openpyxl.load_workbook("./bot_outputs/step_5_out.xlsx")
@@ -107,7 +109,7 @@ def step_6():
         for j in range(3, wsIn.max_row + 1):
             value = 'Q'
             for k in range(3, 7):
-                wsIn.cell(j, skipper + k).value = f"=_xlfn.XLOOKUP('Economic Parameters'!$A{j} & 'Economic Parameters'!${section_letter}$1, Example0gross_LOS!$A:$A & Example0gross_LOS!$D:$D, Example0gross_LOS!${value}:${value}, "", 0, 1)"
+                wsIn.cell(j, skipper + k).value = f"=_xlfn.XLOOKUP('Economic Parameters'!$A{j} & 'Economic Parameters'!${section_letter}$1, LOS!$A:$A & LOS!$D:$D, LOS!${value}:${value}, "", 0, 1)"
                 value = get_column_letter(column_index_from_string(value) + 1) # update next letter
                 # now check number formatting
                 if i < 15 or i >= 43:
